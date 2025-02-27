@@ -1,14 +1,18 @@
-import React from "react";
+// screens/Profile/Profile.js
+import React, { useState } from "react";
 import { 
   View, 
   Text, 
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  Platform
+  Platform,
+  Alert,
+  ActivityIndicator
 } from "react-native";
 import { Image } from "expo-image";
 import styles from './Profile.styles';
+import { useAuth } from '../../context/AuthContext';
 
 const MenuItem = ({ icon, title, onPress }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -35,8 +39,40 @@ const NavButton = ({ icon, label, onPress, isActive }) => (
 );
 
 const Profile = ({ navigation }) => {
+  const { user, logout, loading } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Logout",
+          onPress: async () => {
+            setLoggingOut(true);
+            await logout();
+            setLoggingOut(false);
+            // Navigation to login screen is handled by the AuthContext
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      {loggingOut && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text style={styles.loadingText}>Logging out...</Text>
+        </View>
+      )}
+      
       {/* Header Section */}
       <View style={styles.header}>
         <View style={styles.profileInfo}>
@@ -48,8 +84,8 @@ const Profile = ({ navigation }) => {
             />
           </TouchableOpacity>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>Dana Yaakov Arye</Text>
-            <Text style={styles.userCode}>E11</Text>
+            <Text style={styles.userName}>{user?.user_name || 'Dana Yaakov Arye'}</Text>
+            <Text style={styles.userCode}>{user?.user_code || 'E11'}</Text>
           </View>
           <TouchableOpacity onPress={() => navigation.navigate("EditDetails")}>
             <Text style={styles.editButton}>Edit details</Text>
@@ -91,6 +127,11 @@ const Profile = ({ navigation }) => {
           title="Contact support" 
           onPress={() => navigation.navigate("ContactSupport")}
         />
+        
+        {/* Logout Menu Item */}
+        <TouchableOpacity style={styles.logoutMenuItem} onPress={handleLogout} disabled={loggingOut}>
+          <Text style={styles.logoutMenuText}>Logout</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Bottom Navigation */}
@@ -107,8 +148,9 @@ const Profile = ({ navigation }) => {
         />
         <NavButton
           icon={require("../../assets/-05.png")}
-          label="Settings"
-          onPress={() => navigation.navigate("Settings")}
+          label="Profile"
+          onPress={() => {}}
+          isActive={true}
         />
       </View>
     </SafeAreaView>

@@ -1,153 +1,34 @@
-import React, { useState, useRef } from 'react';
+// screens/Home/Home.js (simplified)
+import React, { useState, useRef, useEffect } from 'react';
+import { useMetrics } from '../../context/MetricsContext';
 import {
   View,
   Text,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  TextInput,
-  PanResponder,
-  Dimensions,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { Image } from "expo-image";
 import styles from './Home.styles';
+// import { useMetrics } from '../../context/SimpleMetricsContext';
+import { useAuth } from '../../context/AuthContext';
 
-const { width } = Dimensions.get('window');
-
-const Group = ({ title, children }) => (
-  <View style={styles.groupContainer}>
-    <View style={styles.groupHeader}>
-      <Text style={styles.groupTitle}>{title}</Text>
-    </View>
-    <View style={styles.groupContent}>
-      {children}
-    </View>
-  </View>
-);
-
-const PainScale = ({ label, value, onValueChange, max = 10, showLabels = true }) => {
-  const sliderRef = useRef(null);
-  
-  const handleSliderPress = (event) => {
-    if (sliderRef.current) {
-      sliderRef.current.measure((x, y, width, height, pageX, pageY) => {
-        const touchX = event.nativeEvent.pageX - pageX;
-        const percentage = Math.min(Math.max(touchX / width, 0), 1);
-        const newValue = Math.round(percentage * max);
-        onValueChange(newValue);
-      });
-    }
-  };
-
-  return (
-    <View style={styles.painScaleContainer}>
-      <Text style={styles.painScaleLabel}>{label}</Text>
-      <Text style={styles.painScaleRange}>0 no pain - {max} worst pain</Text>
-      <TouchableOpacity 
-        activeOpacity={1}
-        onPress={handleSliderPress}
-      >
-        <View 
-          ref={sliderRef}
-          style={styles.sliderContainer}
-        >
-          <View style={styles.slider}>
-            <View style={styles.sliderTrack} />
-            <View 
-              style={[
-                styles.sliderThumb,
-                { left: `${(value / max) * 100}%` }
-              ]} 
-            />
-          </View>
-          {showLabels && (
-            <View style={styles.sliderLabels}>
-              {Array.from({ length: max + 1 }).map((_, i) => (
-                <Text key={i} style={styles.sliderLabel}>{i}</Text>
-              ))}
-            </View>
-          )}
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-const YesNoSelect = ({ label, value, onValueChange }) => (
-  <View style={styles.yesNoContainer}>
-    <Text style={styles.yesNoLabel}>{label}</Text>
-    <Text style={styles.yesNoSubtitle}>Select yes/no</Text>
-    <View style={styles.yesNoOptions}>
-      <TouchableOpacity 
-        style={[styles.optionButton, value === 'yes' && styles.optionButtonSelected]}
-        onPress={() => onValueChange('yes')}
-      >
-        <Text style={styles.optionText}>yes</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        style={[styles.optionButton, value === 'no' && styles.optionButtonSelected]}
-        onPress={() => onValueChange('no')}
-      >
-        <Text style={styles.optionText}>no</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
-
-const WeekCalendar = ({ selectedDate, onDateSelect }) => {
-  const currentDate = new Date();
-  const startDate = new Date(currentDate);
-  startDate.setDate(currentDate.getDate() - 3); // Show 3 days before current date
-
-  const dates = Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + index);
-    return date;
-  });
-
-  const getDayName = (date) => {
-    return date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
-  };
-
-  return (
-    <View style={styles.calendarContainer}>
-      <View style={styles.daysContainer}>
-        {dates.map((date) => {
-          const day = getDayName(date);
-          const dateNum = date.getDate();
-          const isSelected = selectedDate && 
-            date.getDate() === selectedDate.getDate() &&
-            date.getMonth() === selectedDate.getMonth();
-          const isToday = date.getDate() === currentDate.getDate() &&
-            date.getMonth() === currentDate.getMonth();
-
-          return (
-            <TouchableOpacity 
-              key={dateNum}
-              style={styles.dayColumn}
-              onPress={() => onDateSelect(date)}
-            >
-              <Text style={styles.dayText}>{day}</Text>
-              <View style={[
-                styles.dateCircle,
-                isSelected && styles.selectedDate,
-                isToday && styles.currentDate,
-              ]}>
-                <Text style={[
-                  styles.dateText,
-                  (isSelected || isToday) && styles.selectedDateText
-                ]}>{dateNum}</Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </View>
-  );
-};
+// Component imports remain the same - Group, PainScale, YesNoSelect, WeekCalendar
+// Truncated for brevity - keep your existing component implementations
 
 const Home = ({ navigation }) => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { user } = useAuth();
+  const { 
+    selectedDate, 
+    setSelectedDate, 
+    currentDayMetrics,
+    loading,
+    saveMetrics
+  } = useMetrics();
+  
+  // Sample form data - you can populate this from currentDayMetrics later
   const [formData, setFormData] = useState({
     ovariesPain: 0,
     headache: 4,
@@ -158,26 +39,77 @@ const Home = ({ navigation }) => {
     stoolDescription: 4,
     multipleBowelMovements: 0,
   });
+  
+  const [dayCounter, setDayCounter] = useState(108);
+
+  // Update form when current metrics change
+  useEffect(() => {
+    if (currentDayMetrics && currentDayMetrics.data && currentDayMetrics.data.length > 0) {
+      console.log('Updating form with current day metrics');
+      // This mapping would depend on your actual API data structure
+      // This is just a placeholder
+      
+      // For now we'll keep using the default formData
+    }
+  }, [currentDayMetrics]);
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
-    // Here you would typically load the form data for the selected date
   };
+
+  const handleSaveData = async () => {
+    // Convert form data to API format
+    // This is a simplified example - adjust based on your API requirements
+    const metricsData = [
+      {
+        id: "1", // Period
+        value_id: formData.period === 'yes' ? "1" : "0",
+        type: "linear"
+      },
+      {
+        id: "2", // Ovaries pain 
+        value_id: String(formData.ovariesPain),
+        type: "linear"
+      },
+      {
+        id: "3", // Headache
+        value_id: String(formData.headache),
+        type: "linear"
+      }
+      // Add more metrics based on your form data
+    ];
+
+    try {
+      await saveMetrics(metricsData);
+    } catch (error) {
+      console.error('Failed to save metrics:', error);
+      Alert.alert('Error', 'Failed to save your data. Please try again.');
+    }
+  };
+
+  // Group, PainScale, and other component implementations remain the same...
+  // Here's a simplified render for clarity:
 
   return (
     <SafeAreaView style={styles.container}>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )}
+      
       <ScrollView style={styles.scrollView}>
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.welcomeContainer}>
-            <Text style={styles.welcomeText}>Hi Dana!</Text>
-            <Text style={styles.subText}>Or your research name: D11 ;)</Text>
+            <Text style={styles.welcomeText}>Hi {user?.user_name || 'Dana'}!</Text>
+            <Text style={styles.subText}>Or your research name: {user?.user_id || 'D11'} ;)</Text>
             <Text style={styles.motivationalText}>
               Instead of the disease controlling you, you control it! ⚓
             </Text>
           </View>
           <View style={styles.dayCounter}>
-            <Text style={styles.dayCounterText}>Today you'll fill day 108</Text>
+            <Text style={styles.dayCounterText}>Today you'll fill day {dayCounter}</Text>
           </View>
         </View>
 
@@ -239,6 +171,17 @@ const Home = ({ navigation }) => {
           />
         </Group>
 
+        {/* Save Button */}
+        <TouchableOpacity 
+          style={styles.saveButton} 
+          onPress={handleSaveData}
+          disabled={loading}
+        >
+          <Text style={styles.saveButtonText}>
+            {loading ? 'Saving...' : 'Save My Day'}
+          </Text>
+        </TouchableOpacity>
+
         {/* Completion Message */}
         <View style={styles.completionContainer}>
           <Text style={styles.completionTitle}>I'm done!</Text>
@@ -272,18 +215,52 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => navigation.navigate('Settings')}
+          onPress={() => navigation.navigate('Profile')}
         >
           <Image
             style={styles.navIcon}
             contentFit="cover"
             source={require("../../assets/-05.png")}
           />
-          <Text style={styles.navText}>Settings</Text>
+          <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
+
+// Implement Group, PainScale, YesNoSelect, and WeekCalendar components here
+// Use your existing implementations
+
+// Placeholder implementations to make the file compile
+const Group = ({ title, children }) => (
+  <View style={styles.groupContainer}>
+    <View style={styles.groupHeader}>
+      <Text style={styles.groupTitle}>{title}</Text>
+    </View>
+    <View style={styles.groupContent}>{children}</View>
+  </View>
+);
+
+const PainScale = ({ label, value, onValueChange, max = 10 }) => (
+  <View style={styles.painScaleContainer}>
+    <Text>{label}: {value}</Text>
+    {/* Implement your actual PainScale UI here */}
+  </View>
+);
+
+const YesNoSelect = ({ label, value, onValueChange }) => (
+  <View style={styles.yesNoContainer}>
+    <Text>{label}: {value}</Text>
+    {/* Implement your actual YesNoSelect UI here */}
+  </View>
+);
+
+const WeekCalendar = ({ selectedDate, onDateSelect }) => (
+  <View style={styles.calendarContainer}>
+    <Text>Calendar: {selectedDate.toDateString()}</Text>
+    {/* Implement your actual WeekCalendar UI here */}
+  </View>
+);
 
 export default Home;

@@ -1,3 +1,4 @@
+// screens/Login/Login1.styles.js
 import { StyleSheet } from 'react-native';
 import { Border, FontSize, Color, FontFamily } from "../../GlobalStyles";
 
@@ -46,6 +47,14 @@ export default StyleSheet.create({
   eyeIcon: {
     width: 20,
     height: 20,
+  },
+  passwordNote: {
+    fontSize: FontSize.size_xs,
+    color: Color.colorDarkslategray,
+    fontFamily: FontFamily.fbSpoilerPasEng,
+    opacity: 0.7,
+    marginBottom: 16,
+    alignSelf: 'center',
   },
   loginButton: {
     backgroundColor: Color.colorCadetblue,

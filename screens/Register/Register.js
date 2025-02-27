@@ -1,3 +1,4 @@
+// screens/Register/Register.js
 import React, { useState } from "react";
 import { 
   View, 
@@ -10,12 +11,15 @@ import {
   ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
-  Alert
+  Alert,
+  ActivityIndicator
 } from "react-native";
 import { Image } from "expo-image";
 import styles from './Register.styles';
+import { useAuth } from '../../context/AuthContext';
 
 const Register = ({ navigation }) => {
+  const { register, loading } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -58,15 +62,21 @@ const Register = ({ navigation }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (validateForm()) {
-      navigation.navigate("createAccount", { formData });
+      const fullName = `${formData.firstName} ${formData.lastName}`;
+      const success = await register(fullName, formData.email, formData.password);
+      
+      if (success) {
+        // Navigation to Home is handled automatically in App.js based on auth state
+        console.log("Registration successful");
+      }
     } else {
       Alert.alert('Validation Error', 'Please check your input and try again');
     }
   };
 
-  const renderInput = (field, placeholder, value, keyboardType = 'default', isPassword = false) => (
+  const renderInput = (field, placeholder, value, keyboardType = 'default', isPassword = false, whichPassword = 'password') => (
     <View style={styles.inputWrapper}>
       <TextInput
         style={styles.input}
@@ -74,12 +84,14 @@ const Register = ({ navigation }) => {
         value={value}
         onChangeText={(text) => setFormData(prev => ({ ...prev, [field]: text }))}
         keyboardType={keyboardType}
-        secureTextEntry={isPassword && !showPassword}
+        secureTextEntry={isPassword && (whichPassword === 'password' ? !showPassword : !showConfirmPassword)}
         autoCapitalize={field === 'email' ? 'none' : 'words'}
+        editable={!loading}
       />
       {isPassword && (
         <TouchableOpacity
-          onPress={() => field === 'password' ? setShowPassword(!showPassword) : setShowConfirmPassword(!showConfirmPassword)}
+          onPress={() => whichPassword === 'password' ? setShowPassword(!showPassword) : setShowConfirmPassword(!showConfirmPassword)}
+          disabled={loading}
         >
           <Image
             style={styles.eyeIcon}
@@ -114,8 +126,8 @@ const Register = ({ navigation }) => {
             {renderInput('firstName', 'First name', formData.firstName)}
             {renderInput('lastName', 'Last name', formData.lastName)}
             {renderInput('email', 'Email address', formData.email, 'email-address')}
-            {renderInput('password', 'Password', formData.password, 'default', true)}
-            {renderInput('confirmPassword', 'Confirm new password', formData.confirmPassword, 'default', true)}
+            {renderInput('password', 'Password', formData.password, 'default', true, 'password')}
+            {renderInput('confirmPassword', 'Confirm new password', formData.confirmPassword, 'default', true, 'confirmPassword')}
 
             <Text style={styles.passwordHint}>
               The password must contain 6 characters, at least one special character, and a number.
@@ -124,15 +136,20 @@ const Register = ({ navigation }) => {
             <TouchableOpacity 
               style={styles.registerButton}
               onPress={handleRegister}
+              disabled={loading}
             >
-              <Text style={styles.registerButtonText}>Register</Text>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.registerButtonText}>Register</Text>
+              )}
             </TouchableOpacity>
 
             <Text style={styles.agreementText}>
               I agree to Symptolab's Terms & Conditions and acknowledge the Privacy Policy.
             </Text>
 
-            <TouchableOpacity onPress={() => navigation.navigate('Login1')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Login1')} disabled={loading}>
               <Text style={styles.alreadyHaveAn}>Already have an account? Sign in</Text>
             </TouchableOpacity>
           </ScrollView>

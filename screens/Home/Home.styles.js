@@ -1,3 +1,4 @@
+// screens/Home/Home.styles.js
 import { StyleSheet, Platform, Dimensions } from 'react-native';
 import { Color, Border, FontSize, FontFamily } from "../../GlobalStyles";
 
@@ -10,6 +11,17 @@ export default StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 1000,
   },
   header: {
     padding: 20,
@@ -96,6 +108,7 @@ export default StyleSheet.create({
     backgroundColor: Color.colorAliceblue,
     borderRadius: Border.br_13xl,
     overflow: 'hidden',
+    marginHorizontal: 16,
   },
   groupHeader: {
     padding: 16,
@@ -193,6 +206,21 @@ export default StyleSheet.create({
     fontSize: FontSize.size_sm,
     fontFamily: FontFamily.fbSpoilerPasEng,
     color: Color.colorDarkslategray,
+  },
+  saveButton: {
+    backgroundColor: Color.colorCadetblue,
+    borderRadius: Border.br_13xl,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    marginHorizontal: 16,
+    marginVertical: 16,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    fontSize: FontSize.size_sm,
+    fontFamily: FontFamily.fbSpoilerPasEng,
+    color: Color.colorWhite,
+    fontWeight: '500',
   },
   completionContainer: {
     backgroundColor: Color.colorAliceblue,

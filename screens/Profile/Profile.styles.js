@@ -1,3 +1,4 @@
+// screens/Profile/Profile.styles.js
 import { StyleSheet, Platform } from 'react-native';
 import { Color, Border, FontFamily, FontSize } from "../../GlobalStyles";
 
@@ -5,6 +6,23 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Color.colorGray_100,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 1000,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: FontSize.size_sm,
+    fontFamily: FontFamily.fbSpoilerPasEng,
+    color: Color.colorWhite,
   },
   header: {
     backgroundColor: Color.colorAliceblue,
@@ -84,6 +102,22 @@ export default StyleSheet.create({
   chevronIcon: {
     width: 20,
     height: 20,
+  },
+  // New styles for logout
+  logoutMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    marginTop: 24,
+    borderRadius: Border.br_13xl,
+    backgroundColor: Color.colorAliceblue,
+  },
+  logoutMenuText: {
+    fontSize: FontSize.size_sm,
+    fontFamily: FontFamily.fbSpoilerPasEng,
+    color: Color.colorIndianred,
+    fontWeight: "500",
   },
   bottomNav: {
     flexDirection: 'row',

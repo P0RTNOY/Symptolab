@@ -1,3 +1,4 @@
+// screens/Password/ChangePassword.js
 import * as React from "react";
 import { 
   View, 
@@ -48,10 +49,12 @@ const ChangePassword = ({ navigation }) => {
       Alert.alert("Error", "Please enter your current password");
       return;
     }
-    if (!validatePassword(passwordData.newPassword)) {
-      Alert.alert("Error", "New password must contain 6 characters, at least one special character and number");
+    
+    if (!passwordData.newPassword) {
+      Alert.alert("Error", "Please enter a new password");
       return;
     }
+    
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       Alert.alert("Error", "Passwords don't match");
       return;
@@ -72,11 +75,6 @@ const ChangePassword = ({ navigation }) => {
         }
       ]
     );
-  };
-
-  const validatePassword = (password) => {
-    const regex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/;
-    return regex.test(password);
   };
 
   if (!isVisible) return null;
@@ -157,7 +155,7 @@ const ChangePassword = ({ navigation }) => {
             </View>
 
             <Text style={styles.passwordRequirements}>
-              The password must contain 6 characters, at least one special character and number.
+              You can use simple passwords like "1234"
             </Text>
           </View>
 

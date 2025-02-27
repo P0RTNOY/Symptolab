@@ -1,3 +1,4 @@
+// screens/Login/Login1.js
 import React, { useState } from "react";
 import { 
   View, 
@@ -5,28 +6,37 @@ import {
   TextInput, 
   TouchableOpacity,
   SafeAreaView,
-  Alert
+  Alert,
+  ActivityIndicator
 } from "react-native";
 import { Image } from "expo-image";
 import styles from './Login1.styles';
-
-// Temporary test credentials
-const TEST_EMAIL = "1234@prendo.com";
-const TEST_PASSWORD = "1234";
+import { useAuth } from '../../context/AuthContext';
 
 const Login1 = ({ navigation }) => {
+  const { login, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    if (email === TEST_EMAIL && password === TEST_PASSWORD) {
-      navigation.navigate('Profile');
-    } else {
-      Alert.alert(
-        "Test Credentials", 
-        `Please use:\nEmail: ${TEST_EMAIL}\nPassword: ${TEST_PASSWORD}`
-      );
+  const handleLogin = async () => {
+    // Basic validation
+    if (!email.trim()) {
+      Alert.alert("Error", "Please enter your email");
+      return;
+    }
+    
+    if (!password.trim()) {
+      Alert.alert("Error", "Please enter your password");
+      return;
+    }
+    
+    // Attempt login
+    const success = await login(email, password);
+    
+    if (success) {
+      // Navigation is handled automatically in App.js based on auth state
+      console.log("Login successful");
     }
   };
 
@@ -49,6 +59,7 @@ const Login1 = ({ navigation }) => {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!loading}
           />
         </View>
 
@@ -59,10 +70,12 @@ const Login1 = ({ navigation }) => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
+            editable={!loading}
           />
           <TouchableOpacity 
             onPress={() => setShowPassword(!showPassword)}
             style={styles.eyeButton}
+            disabled={loading}
           >
             <Image
               style={styles.eyeIcon}
@@ -75,12 +88,18 @@ const Login1 = ({ navigation }) => {
         <TouchableOpacity 
           style={styles.loginButton}
           onPress={handleLogin}
+          disabled={loading}
         >
-          <Text style={styles.loginButtonText}>Let me in</Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.loginButtonText}>Let me in</Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity 
           onPress={() => navigation.navigate('Register')}
+          disabled={loading}
         >
           <Text style={styles.registerText}>Is this your first time?</Text>
         </TouchableOpacity>
