@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Import contexts
-import { useAuth } from '../context/SimpleAuthContext';
+import { useAuth } from '../context/AuthContext';
 
 // Import screens - with correct SplashScreen path
 import SplashScreen from '../screens/SplashScreen/SplashScreen';
